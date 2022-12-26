@@ -1,9 +1,7 @@
 import asyncio
 import json
 import os.path
-import threading
 from asyncio import AbstractEventLoop
-from threading import Thread
 
 from simpleobsws import WebSocketClient, IdentificationParameters, Request
 from xdg import (
@@ -15,6 +13,8 @@ from xdg import (
     xdg_runtime_dir,
     xdg_state_home,
 )
+
+from edb_obs_ws import endpoints
 
 VERSION = "0.0.1"
 
@@ -40,7 +40,7 @@ def edb_run():
     websocket = WebSocketClient(url, password, id_params)
     loop = asyncio.get_event_loop()
     loop.run_until_complete(__connect_to_obs())
-    edb_fire_event("GetSceneList")
+    print(edb_fire_event("SwitchScene", {"name": "S: Gaming"}))
 
 
 # Stops this backend and makes sure all websockets are disconnected gracefully.
@@ -53,11 +53,11 @@ def edb_fire_event(even_type: str, event_properties: dict = None):
     global loop
     match even_type:
         case "GetVersion":
-            loop.run_until_complete(__get_version())
+            return loop.run_until_complete(endpoints.__get_version(websocket))
         case "SwitchScene":
-            loop.run_until_complete(__switch_scene(event_properties["name"]))
+            return loop.run_until_complete(endpoints.__switch_scene(websocket, event_properties["name"]))
         case "GetSceneList":
-            loop.run_until_complete(__get_available_scenes())
+            return loop.run_until_complete(endpoints.__get_available_scenes(websocket))
         case other:
             pass
 
@@ -108,27 +108,6 @@ def __create_empty_config():
 async def __connect_to_obs():
     await websocket.connect()
     await websocket.wait_until_identified()
-
-
-async def __switch_scene(scene_name: str):
-    requests = Request("SetCurrentProgramScene", requestData={"sceneName": scene_name})
-    response = await websocket.call(requests)
-    if response.ok():
-        print("Call made: {}".format(response.responseData))
-
-
-async def __get_version():
-    requests = Request("GetVersion")
-    response = await websocket.call(requests)
-    if response.ok():
-        print("Call made: {}".format(response.responseData))
-
-
-async def __get_available_scenes():
-    requests = Request("GetSceneList")
-    response = await websocket.call(requests)
-    if response.ok():
-        print("Call made: {}".format(response.responseData))
 
 
 async def __stop_websocket():
