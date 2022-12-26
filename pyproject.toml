@@ -1,0 +1,27 @@
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ElDecko_Backend_OBS_ws"
+dynamic = ["version", "readme"]
+description = "El Decko OBS Studio Websocket Backend"
+license = { text = "GPL-3"}
+dependencies = [
+    "simpleobsws",
+    "xdg"
+]
+
+[project.scripts]
+edb-obsws = "edb_obs_ws:edb_run"
+
+[project.entry-points."edb.run"]
+excl = "edb_obs_ws:edb_run"
+
+[tool.setuptools.dynamic]
+version = {attr = "edb_obs_ws.VERSION"}
+readme = {file = ["README.md"]}
+
+[tool.setuptools]
+include-package-data = true
+platforms = ["Linux"]
