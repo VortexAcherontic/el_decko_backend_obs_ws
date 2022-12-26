@@ -27,7 +27,7 @@ websocket: WebSocketClient
 
 
 # Initializes this backend and all required event loops and websockets.
-def edb_run():
+def edb_init():
     global websocket
 
     print("Run EL Decko Backend for Open Broadcaster Software Websockets")
