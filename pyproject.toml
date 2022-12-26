@@ -15,7 +15,7 @@ dependencies = [
 [project.scripts]
 edb-obsws = "edb_obs_ws:edb_run"
 
-[project.entry-points."edb"]
+[project.entry-points."eldecko.backend"]
 start = "edb_obs_ws:edb_run"
 stop = "edb_obs_ws:edb_stop"
 fire = "edb_obs_ws:edb_fire_event"
