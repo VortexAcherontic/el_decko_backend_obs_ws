@@ -13,7 +13,7 @@ dependencies = [
 ]
 
 [project.scripts]
-edb-obsws = "edb_obs_ws:edb_run"
+edb-obsws = "edb_obs_ws:edb_init"
 
 [project.entry-points."eldecko.backend"]
 init = "edb_obs_ws:edb_init"
