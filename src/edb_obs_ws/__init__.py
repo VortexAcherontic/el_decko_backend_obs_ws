@@ -18,7 +18,7 @@ from edb_obs_ws import endpoints
 
 VERSION = "0.0.1"
 
-config_path: str = str(xdg_config_home()) + "eldecko/backend/"
+config_path: str = str(xdg_config_home()) + "/eldecko/backend/"
 config_file: str = config_path + "obsws.json"
 host = "localhost"
 port = "4455"
