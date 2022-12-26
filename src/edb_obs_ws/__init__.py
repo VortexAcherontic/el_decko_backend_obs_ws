@@ -37,8 +37,6 @@ def edb_run():
     print(url)
     websocket = WebSocketClient(url, password, id_params)
 
-    print(edb_fire_event("SwitchScene", {"name": "S: Gaming"}))
-
 
 def edb_stop():
     pass
