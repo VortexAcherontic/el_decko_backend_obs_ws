@@ -3,7 +3,7 @@ requires = ["setuptools"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "ElDecko_Backend_OBS_ws"
+name = "el_decko_backend_obs_ws"
 dynamic = ["version", "readme"]
 description = "El Decko OBS Studio Websocket Backend"
 license = { text = "GPL-3"}
