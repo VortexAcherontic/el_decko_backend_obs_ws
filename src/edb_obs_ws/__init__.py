@@ -2,6 +2,7 @@ import asyncio
 import json
 import os.path
 import threading
+from threading import Thread
 
 from simpleobsws import WebSocketClient, IdentificationParameters, Request
 from xdg import (
@@ -18,23 +19,30 @@ VERSION = "0.0.1"
 
 config_path: str = str(xdg_config_home()) + "eldecko/backend/"
 config_file: str = config_path + "obsws.json"
-host = "123"
-port = "456"
+host = "localhost"
+port = "4455"
 password = "1234IsABadPassword"
 websocket: WebSocketClient
+callback_loop: Thread
 
 
 def edb_run():
+    global websocket
+    global callback_loop
+
     print("Run EL Decko Backend for Open Broadcaster Software Websockets")
     __load_obs_ws_config()
     url = "ws://" + host + ":" + port
     id_params = IdentificationParameters()
     print(url)
-    global websocket
     websocket = WebSocketClient(url, password, id_params)
     callback_loop = threading.Thread(__start_callback_loop())
     callback_loop.start()
     switch_scene()
+
+
+def edb_stop():
+    pass
 
 
 def __load_obs_ws_config():

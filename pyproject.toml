@@ -18,6 +18,9 @@ edb-obsws = "edb_obs_ws:edb_run"
 [project.entry-points."edb.run"]
 excl = "edb_obs_ws:edb_run"
 
+[project.entry-points."edb.stop"]
+excl = "edb_obs_ws:edb_stop"
+
 [tool.setuptools.dynamic]
 version = {attr = "edb_obs_ws.VERSION"}
 readme = {file = ["README.md"]}
