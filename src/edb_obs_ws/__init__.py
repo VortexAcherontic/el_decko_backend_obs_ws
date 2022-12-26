@@ -2,6 +2,7 @@ import asyncio
 import json
 import os.path
 import threading
+from asyncio import AbstractEventLoop
 from threading import Thread
 
 from simpleobsws import WebSocketClient, IdentificationParameters, Request
@@ -23,12 +24,13 @@ host = "localhost"
 port = "4455"
 password = "1234IsABadPassword"
 websocket: WebSocketClient
-callback_loop: Thread
+loop: AbstractEventLoop
 
 
+# Initializes this backend and all required event loops and websockets.
 def edb_run():
     global websocket
-    global callback_loop
+    global loop
 
     print("Run EL Decko Backend for Open Broadcaster Software Websockets")
     __load_obs_ws_config()
@@ -36,13 +38,40 @@ def edb_run():
     id_params = IdentificationParameters()
     print(url)
     websocket = WebSocketClient(url, password, id_params)
-    callback_loop = threading.Thread(__start_callback_loop())
-    callback_loop.start()
-    switch_scene()
+    loop = asyncio.get_event_loop()
+    loop.run_until_complete(__connect_to_obs())
+    edb_fire_event("GetSceneList")
 
 
+# Stops this backend and makes sure all websockets are disconnected gracefully.
 def edb_stop():
-    pass
+    loop.run_until_complete(__stop_websocket())
+
+
+# Fires a given event to OBS Studio via it's Websocket server
+def edb_fire_event(even_type: str, event_properties: dict = None):
+    global loop
+    match even_type:
+        case "GetVersion":
+            loop.run_until_complete(__get_version())
+        case "SwitchScene":
+            loop.run_until_complete(__switch_scene(event_properties["name"]))
+        case "GetSceneList":
+            loop.run_until_complete(__get_available_scenes())
+        case other:
+            pass
+
+
+# Returns a dictionary with all available event types and their respective event parameters.
+# Every event returns human_readable_name which may be used to present this endpoint in a UI to the user.
+def edb_available_events():
+    return {
+        "GetVersion": {"human_readable_name": "Get OBS Studio Version"},
+        "SwitchScene": {
+            "human_readable_name": "Switch OBS Studio Scene",
+            "name": "string"
+        }
+    }
 
 
 def __load_obs_ws_config():
@@ -76,33 +105,31 @@ def __create_empty_config():
         print("Default configuration created at " + config_file + " please edit credentials.")
 
 
-def __start_callback_loop():
-    loop = asyncio.get_event_loop()
-    loop.run_until_complete(__connect_to_obs())
-    websocket.register_event_callback(on_switch_scene, "SwitchScenes")
-    loop.run_forever()
-
-
 async def __connect_to_obs():
     await websocket.connect()
     await websocket.wait_until_identified()
 
 
-async def on_switch_scene(event_data):
-    print('Scene switched to "{}".'.format(event_data['sceneName']))
+async def __switch_scene(scene_name: str):
+    requests = Request("SetCurrentProgramScene", requestData={"sceneName": scene_name})
+    response = await websocket.call(requests)
+    if response.ok():
+        print("Call made: {}".format(response.responseData))
 
 
-def switch_scene():
-    loop = asyncio.get_event_loop()
-    loop.run_until_complete(__switch_scene())
-
-
-async def __switch_scene(loop):
-    loop.run_until_complete(__connect_to_obs())
-
+async def __get_version():
     requests = Request("GetVersion")
     response = await websocket.call(requests)
     if response.ok():
         print("Call made: {}".format(response.responseData))
 
+
+async def __get_available_scenes():
+    requests = Request("GetSceneList")
+    response = await websocket.call(requests)
+    if response.ok():
+        print("Call made: {}".format(response.responseData))
+
+
+async def __stop_websocket():
     await websocket.disconnect()
