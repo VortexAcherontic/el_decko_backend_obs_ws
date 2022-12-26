@@ -24,13 +24,11 @@ host = "localhost"
 port = "4455"
 password = "1234IsABadPassword"
 websocket: WebSocketClient
-loop: AbstractEventLoop
 
 
 # Initializes this backend and all required event loops and websockets.
 def edb_run():
     global websocket
-    global loop
 
     print("Run EL Decko Backend for Open Broadcaster Software Websockets")
     __load_obs_ws_config()
@@ -38,19 +36,18 @@ def edb_run():
     id_params = IdentificationParameters()
     print(url)
     websocket = WebSocketClient(url, password, id_params)
-    loop = asyncio.get_event_loop()
-    loop.run_until_complete(__connect_to_obs())
+
     print(edb_fire_event("SwitchScene", {"name": "S: Gaming"}))
 
 
-# Stops this backend and makes sure all websockets are disconnected gracefully.
 def edb_stop():
-    loop.run_until_complete(__stop_websocket())
+    pass
 
 
 # Fires a given event to OBS Studio via it's Websocket server
 def edb_fire_event(even_type: str, event_properties: dict = None):
-    global loop
+    loop = asyncio.get_event_loop()
+    loop.run_until_complete(__connect_to_obs())
     match even_type:
         case "GetVersion":
             return loop.run_until_complete(endpoints.__get_version(websocket))
@@ -60,6 +57,7 @@ def edb_fire_event(even_type: str, event_properties: dict = None):
             return loop.run_until_complete(endpoints.__get_available_scenes(websocket))
         case other:
             pass
+    loop.run_until_complete(__stop_websocket())
 
 
 # Returns a dictionary with all available event types and their respective event parameters.
