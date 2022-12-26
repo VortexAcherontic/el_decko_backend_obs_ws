@@ -1,8 +1,6 @@
 import asyncio
 import json
 import os.path
-from asyncio import AbstractEventLoop
-
 from simpleobsws import WebSocketClient, IdentificationParameters, Request
 from xdg import (
     xdg_cache_home,
@@ -24,18 +22,18 @@ host = "localhost"
 port = "4455"
 password = "1234IsABadPassword"
 websocket: WebSocketClient
+id_params = IdentificationParameters(ignoreNonFatalRequestChecks=False)
 
 
 # Initializes this backend and all required event loops and websockets.
 def edb_init():
-    global websocket
-
     print("Run EL Decko Backend for Open Broadcaster Software Websockets")
     __load_obs_ws_config()
-    url = "ws://" + host + ":" + port
-    id_params = IdentificationParameters()
-    print(url)
-    websocket = WebSocketClient(url, password, id_params)
+
+
+def edb_test():
+    edb_init()
+    edb_fire_event("GetVersion")
 
 
 def edb_stop():
@@ -44,18 +42,22 @@ def edb_stop():
 
 # Fires a given event to OBS Studio via it's Websocket server
 def edb_fire_event(even_type: str, event_properties: dict = None):
-    loop = asyncio.get_event_loop()
-    loop.run_until_complete(__connect_to_obs())
-    match even_type:
-        case "GetVersion":
-            return loop.run_until_complete(endpoints.__get_version(websocket))
-        case "SwitchScene":
-            return loop.run_until_complete(endpoints.__switch_scene(websocket, event_properties["name"]))
-        case "GetSceneList":
-            return loop.run_until_complete(endpoints.__get_available_scenes(websocket))
-        case other:
-            pass
-    loop.run_until_complete(__stop_websocket())
+    loop = None
+
+    # This needs to be done because asyncio does not generate an even loop for any threads except the main thread
+    # But since this function may also be used in a threaded environment we need to ensure there is an event loop.
+    # So we try to get the current event loop and if that fails we generate a new one.
+    try:
+        loop = asyncio.get_event_loop()
+    except RuntimeError as ex:
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+
+    global websocket
+    url = "ws://" + host + ":" + port
+    websocket = WebSocketClient(url, password, id_params)
+
+    loop.run_until_complete(__make_request(even_type, event_properties))
 
 
 # Returns a dictionary with all available event types and their respective event parameters.
@@ -66,6 +68,9 @@ def edb_available_events():
         "SwitchScene": {
             "human_readable_name": "Switch OBS Studio Scene",
             "name": "string"
+        },
+        "GetAvailableScenes": {
+            "human_readable_name": "Returns list of all available scenes"
         }
     }
 
@@ -101,10 +106,24 @@ def __create_empty_config():
         print("Default configuration created at " + config_file + " please edit credentials.")
 
 
-async def __connect_to_obs():
+async def __stop_websocket():
+    await websocket.disconnect()
+
+
+async def __make_request(even_type: str, event_properties: dict = None):
     await websocket.connect()
     await websocket.wait_until_identified()
+    result = None
 
+    match even_type:
+        case "GetVersion":
+            result = await endpoints.__get_version(websocket)
+        case "SwitchScene":
+            result = await endpoints.__switch_scene(websocket, event_properties["name"])
+        case "GetSceneList":
+            result = await endpoints.__get_available_scenes(websocket)
+        case other:
+            pass
 
-async def __stop_websocket():
+    print(result)
     await websocket.disconnect()
