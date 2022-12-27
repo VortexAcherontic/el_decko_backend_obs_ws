@@ -27,7 +27,6 @@ id_params = IdentificationParameters(ignoreNonFatalRequestChecks=False)
 
 # Initializes this backend and all required event loops and websockets.
 def edb_init():
-    print("Run EL Decko Backend for Open Broadcaster Software Websockets")
     __load_obs_ws_config()
 
 
@@ -47,6 +46,7 @@ def edb_fire_event(even_type: str, event_properties: dict = None):
     # This needs to be done because asyncio does not generate an even loop for any threads except the main thread
     # But since this function may also be used in a threaded environment we need to ensure there is an event loop.
     # So we try to get the current event loop and if that fails we generate a new one.
+    # Note: creating a new Websocket also requires an active event loop.
     try:
         loop = asyncio.get_event_loop()
     except RuntimeError as ex:
@@ -56,7 +56,6 @@ def edb_fire_event(even_type: str, event_properties: dict = None):
     global websocket
     url = "ws://" + host + ":" + port
     websocket = WebSocketClient(url, password, id_params)
-
     loop.run_until_complete(__make_request(even_type, event_properties))
 
 
@@ -125,5 +124,4 @@ async def __make_request(even_type: str, event_properties: dict = None):
         case other:
             pass
 
-    print(result)
     await websocket.disconnect()

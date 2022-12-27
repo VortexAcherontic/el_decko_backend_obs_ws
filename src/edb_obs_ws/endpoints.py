@@ -5,7 +5,7 @@ async def __switch_scene(ws: WebSocketClient, scene_name: str):
     requests = Request("SetCurrentProgramScene", requestData={"sceneName": scene_name})
     response = await ws.call(requests)
     if response.ok():
-        print("Call made: {}".format(response.responseData))
+        return response
 
 
 async def __get_version(ws: WebSocketClient,):
