@@ -1,7 +1,7 @@
 from simpleobsws import Request, WebSocketClient
 
 
-async def __switch_scene(ws: WebSocketClient, scene_name: str):
+async def __set_current_program_scene(ws: WebSocketClient, scene_name: str):
     requests = Request("SetCurrentProgramScene", requestData={"sceneName": scene_name})
     response = await ws.call(requests)
     if response.ok():
@@ -15,7 +15,7 @@ async def __get_version(ws: WebSocketClient,):
         return response
 
 
-async def __get_available_scenes(ws: WebSocketClient):
+async def __get_scene_list(ws: WebSocketClient):
     requests = Request("GetSceneList")
     response = await ws.call(requests)
     if response.ok():

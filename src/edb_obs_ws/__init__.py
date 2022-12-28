@@ -65,11 +65,11 @@ def edb_fire_event(even_type: str, event_properties: dict = None):
 def edb_available_events():
     return {
         "GetVersion": {"human_readable_name": "Get OBS Studio Version"},
-        "SwitchScene": {
+        "SetCurrentProgramScene": {
             "human_readable_name": "Switch OBS Studio Scene",
             "name": "string"
         },
-        "GetAvailableScenes": {
+        "GetSceneList": {
             "human_readable_name": "Returns list of all available scenes"
         }
     }
@@ -119,10 +119,9 @@ async def __make_request(even_type: str, event_properties: dict = None):
     match even_type:
         case "GetVersion":
             result = await endpoints.__get_version(websocket)
-        case "SwitchScene":
-            result = await endpoints.__switch_scene(websocket, event_properties["name"])
+        case "SetCurrentProgramScene":
+            result = await endpoints.__set_current_program_scene(websocket, event_properties["name"])
         case "GetSceneList":
-            result = await endpoints.__get_available_scenes(websocket)
+            result = await endpoints.__get_scene_list(websocket)
         case other:
             pass
-
