@@ -21,7 +21,7 @@ config_file: str = config_path + "obsws.json"
 host = "localhost"
 port = "4455"
 password = "1234IsABadPassword"
-websocket: WebSocketClient
+websocket: WebSocketClient = None
 id_params = IdentificationParameters(ignoreNonFatalRequestChecks=False)
 
 
@@ -36,7 +36,7 @@ def edb_test():
 
 
 def edb_stop():
-    pass
+    __stop_websocket()
 
 
 # Fires a given event to OBS Studio via it's Websocket server
@@ -54,8 +54,9 @@ def edb_fire_event(even_type: str, event_properties: dict = None):
         asyncio.set_event_loop(loop)
 
     global websocket
-    url = "ws://" + host + ":" + port
-    websocket = WebSocketClient(url, password, id_params)
+    if websocket is None:
+        url = "ws://" + host + ":" + port
+        websocket = WebSocketClient(url, password, id_params)
     loop.run_until_complete(__make_request(even_type, event_properties))
 
 
@@ -110,8 +111,9 @@ async def __stop_websocket():
 
 
 async def __make_request(even_type: str, event_properties: dict = None):
-    await websocket.connect()
-    await websocket.wait_until_identified()
+    if not websocket.is_identified():
+        await websocket.connect()
+        await websocket.wait_until_identified()
     result = None
 
     match even_type:
@@ -124,4 +126,3 @@ async def __make_request(even_type: str, event_properties: dict = None):
         case other:
             pass
 
-    await websocket.disconnect()
