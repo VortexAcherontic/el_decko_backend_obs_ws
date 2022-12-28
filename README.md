@@ -21,7 +21,7 @@ by [El Decko Core](https://github.com/Z-Ray-Entertainment/el_decko_core) with th
     "key_config": {
       "0": {
         "backend": "edb_obs_ws",
-        "event": "SwitchScene",
+        "event": "SetCurrentProgramScene",
         "event_parameters": {"name":"S: Desktop"},
         "image_idle": null,
         "image_pressed": null
@@ -42,12 +42,12 @@ More supported websocket events will follow.
 
 Tells OBS Studio to change the currently visible Scene to any other available scene.
 
-Event name: `SwtichScene`  
+Event name: `SetCurrentProgramScene`  
 Parameters: `name` -> Name of your local OBS Studio Scene
 
 #### GetSceneList
 
 Returns a list with all available Scenes within OBS Studio.  
 
-Event name: `GetAvailableScenes`  
+Event name: `GetSceneList`  
 Parameters: `None`
