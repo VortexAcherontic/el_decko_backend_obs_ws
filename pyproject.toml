@@ -4,9 +4,13 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "el_decko_backend_obs_ws"
+authors = [
+  { name="Imo 'Vortex Acherontic' Hester", email="vortex@z-ray.de" },
+]
 dynamic = ["version", "readme"]
-description = "El Decko OBS Studio Websocket Backend"
-license = { text = "GPL-3"}
+description = "OBS Studio websocket backend for El Decko. Allow your Elgato Stream Deck to control OBS Studio using it's webscoket server"
+license = { text = "GPL-3" }
+requires-python = ">=3.8"
 dependencies = [
     "simpleobsws",
     "xdg"
@@ -18,9 +22,13 @@ stop = "edb_obs_ws:edb_stop"
 fire = "edb_obs_ws:edb_fire_event"
 events = "edb_obs_ws:edb_available_events"
 
+[project.urls]
+"Homepage" = "https://github.com/Z-Ray-Entertainment/el_decko_backend_obs_ws"
+"Bug Tracker" = "https://github.com/Z-Ray-Entertainment/el_decko_backend_obs_ws/issues"
+
 [tool.setuptools.dynamic]
-version = {attr = "edb_obs_ws.VERSION"}
-readme = {file = ["README.md"]}
+version = { attr = "edb_obs_ws.VERSION" }
+readme = { file = ["README.md"] }
 
 [tool.setuptools]
 include-package-data = true
