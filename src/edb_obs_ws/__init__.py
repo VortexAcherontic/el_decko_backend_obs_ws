@@ -30,11 +30,6 @@ def edb_init():
     __load_obs_ws_config()
 
 
-def edb_test():
-    edb_init()
-    edb_fire_event("GetVersion")
-
-
 def edb_stop():
     __stop_websocket()
 

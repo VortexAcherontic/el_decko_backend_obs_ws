@@ -12,9 +12,6 @@ dependencies = [
     "xdg"
 ]
 
-[project.scripts]
-edb-obsws = "edb_obs_ws:edb_test"
-
 [project.entry-points."eldecko.backend"]
 init = "edb_obs_ws:edb_init"
 stop = "edb_obs_ws:edb_stop"
