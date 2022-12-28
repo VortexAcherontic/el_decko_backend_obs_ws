@@ -14,7 +14,7 @@ from xdg import (
 
 from edb_obs_ws import endpoints
 
-VERSION = "0.0.1"
+VERSION = "2022.12.28"
 
 config_path: str = str(xdg_config_home()) + "/eldecko/backend/"
 config_file: str = config_path + "obsws.json"
