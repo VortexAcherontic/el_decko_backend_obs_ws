@@ -30,23 +30,28 @@ def edb_init():
     __load_obs_ws_config()
 
 
-def edb_reload():
-    __ensure_loop()
-    __stop_websocket()
-    __load_obs_ws_config()
-    global websocket
-    websocket = None
-    __init_websocket()
-
-
 def edb_stop():
     __stop_websocket()
 
 
 # Fires a given event to OBS Studio via it's Websocket server
 def edb_fire_event(even_type: str, event_properties: dict = None):
-    __init_websocket()
-    loop = __ensure_loop()
+    loop = None
+
+    # This needs to be done because asyncio does not generate an even loop for any threads except the main thread
+    # But since this function may also be used in a threaded environment we need to ensure there is an event loop.
+    # So we try to get the current event loop and if that fails we generate a new one.
+    # Note: creating a new Websocket also requires an active event loop.
+    try:
+        loop = asyncio.get_event_loop()
+    except RuntimeError as ex:
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+
+    global websocket
+    if websocket is None:
+        url = "ws://" + host + ":" + port
+        websocket = WebSocketClient(url, password, id_params)
     loop.run_until_complete(__make_request(even_type, event_properties))
 
 
@@ -96,30 +101,7 @@ def __create_empty_config():
         print("Default configuration created at " + config_file + " please edit credentials.")
 
 
-# This needs to be done because asyncio does not generate an even loop for any threads except the main thread
-# But since this function may also be used in a threaded environment we need to ensure there is an event loop.
-# So we try to get the current event loop and if that fails we generate a new one.
-def __ensure_loop():
-    loop = None
-    try:
-        loop = asyncio.get_event_loop()
-    except RuntimeError as ex:
-        loop = asyncio.new_event_loop()
-        asyncio.set_event_loop(loop)
-    return loop
-
-
-def __init_websocket():
-    # Creating a new Websocket also requires an active event loop.
-    __ensure_loop()
-    global websocket
-    if websocket is None:
-        url = "ws://" + host + ":" + port
-        websocket = WebSocketClient(url, password, id_params)
-
-
 async def __stop_websocket():
-    __ensure_loop()
     await websocket.disconnect()
 
 
