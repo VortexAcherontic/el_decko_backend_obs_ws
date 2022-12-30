@@ -16,18 +16,18 @@ by [El Decko Core](https://github.com/Z-Ray-Entertainment/el_decko_core) with th
 
 ```
 {
-"STREAM_DECK_SERIAL_NUMBER": {
-"brightness": 30,
-"key_config": {
-"0": {
-"backend": "edb_obs_ws",
-"event": "SetCurrentProgramScene",
-"event_parameters": {"name":"S: Desktop"},
-"image_idle": null,
-"image_pressed": null
-}
-}
-}
+    "STREAM_DECK_SERIAL_NUMBER": {
+        "brightness": 30,
+        "key_config": {
+            "0": {
+            "backend": "edb_obs_ws",
+            "event": "SetCurrentProgramScene",
+            "event_parameters": {"name":"S: Desktop"},
+            "image_idle": null,
+            "image_pressed": null
+            }
+        }
+    }
 }
 ```
 

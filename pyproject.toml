@@ -7,7 +7,8 @@ name = "el_decko_backend_obs_ws"
 authors = [
   { name="Imo 'Vortex Acherontic' Hester", email="vortex@z-ray.de" },
 ]
-dynamic = ["version", "readme"]
+dynamic = ["version"]
+readme = "README.md"
 description = "OBS Studio websocket backend for El Decko. Allow your Elgato Stream Deck to control OBS Studio using it's webscoket server"
 license = { text = "GPL-3" }
 requires-python = ">=3.8"
@@ -28,7 +29,6 @@ events = "edb_obs_ws:edb_available_events"
 
 [tool.setuptools.dynamic]
 version = { attr = "edb_obs_ws.VERSION" }
-readme = { file = ["README.md"] }
 
 [tool.setuptools]
 include-package-data = true
