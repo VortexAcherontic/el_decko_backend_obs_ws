@@ -14,7 +14,7 @@ from xdg import (
 
 from edb_obs_ws import endpoints
 
-VERSION = "2022.12.28.1"
+VERSION = "2023.5.2"
 
 config_path: str = str(xdg_config_home()) + "/eldecko/backend/"
 config_file: str = config_path + "obsws.json"
@@ -66,6 +66,18 @@ def edb_available_events():
         },
         "GetSceneList": {
             "human_readable_name": "Returns list of all available scenes"
+        },
+        "SetSceneItemEnabled": {
+            "human_readable_name": "Set the enabled state of a given scene Item in a given scene",
+            "scene_name": "string",
+            "item_id": "integer",
+            "enabled": "boolean"
+        },
+        "ToggleSceneItemEnabled": {
+            "human_readable_name": "Toggles the enabled state of a Set the enabled state of a given item in a scene",
+            "scene_name": "string",
+            "item_id": "integer",
+            "enabled": "boolean"
         }
     }
 
@@ -118,5 +130,13 @@ async def __make_request(even_type: str, event_properties: dict = None):
             result = await endpoints.__set_current_program_scene(websocket, event_properties["name"])
         case "GetSceneList":
             result = await endpoints.__get_scene_list(websocket)
+        case "SetSceneItemEnabled":
+            result = await endpoints.__set_scene_item_enabled(websocket,
+                                                              event_properties["scene_name"],
+                                                              event_properties["item_id"],
+                                                              event_properties["enabled"])
+        case "ToggleSceneItemEnabled":
+            result = await endpoints.__toggle_scene_item_enabled(websocket, event_properties["scene_name"],
+                                                                 event_properties["item_id"])
         case other:
             pass
