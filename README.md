@@ -51,3 +51,53 @@ Returns a list with all available Scenes within OBS Studio.
 
 Event name: `GetSceneList`  
 Parameters: `None`
+
+#### SetSceneItemEnabled
+
+Set the enabled state of an item inside a given scene  
+
+Event name: `SetSceneItemEnabled`
+Parameters:  
+`scene_name` -> The name of the scene  
+`item_id` -> The internal ID of the required item.  
+You can find this inside your OBS Scene Settings JSON.  
+`enabled` -> True or False to show/hide the item.
+
+##### Example JSON:
+````
+"key_config": {
+    "<key_number>": {
+        "backend": "edb_obs_ws",
+        "event": "SetSceneItemEnabled",
+        "event_parameters": {"scene_name":"S: Confeti", "item_id": 42, "enabled": false},
+        "image_idle": "<some_image_path>",
+        "image_pressed": null,
+        "label": "Hide Video"
+      },
+}
+````
+
+#### ToggleSceneItemEnabled
+
+Similar to SetSceneItemEnabled does this event show/hide an item in a given scene.  
+But additionally it queries the current item state and sets it to the opposite state. 
+
+Event name: `SetSceneItemEnabled`
+Parameters:  
+`scene_name` -> The name of the scene  
+`item_id` -> The internal ID of the required item.  
+You can find this inside your OBS Scene Settings JSON.  
+
+##### Example JSON:
+````
+"key_config": {
+    "<key_number>": {
+        "backend": "edb_obs_ws",
+        "event": "ToggleSceneItemEnabled",
+        "event_parameters": {"scene_name":"S: Confeti", "item_id": 2},
+        "image_idle": "<some_image_path>",
+        "image_pressed": null,
+        "label": "Confetti!"
+      },
+}
+````
