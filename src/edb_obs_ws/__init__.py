@@ -1,6 +1,8 @@
 import asyncio
 import json
 import os.path
+from typing import List
+
 from simpleobsws import WebSocketClient, IdentificationParameters, Request
 from xdg import (
     xdg_cache_home,
@@ -13,6 +15,7 @@ from xdg import (
 )
 
 from edb_obs_ws import endpoints
+from edb_obs_ws.event import Event, EventType
 
 VERSION = "2023.5.2"
 
@@ -52,34 +55,12 @@ def edb_fire_event(even_type: str, event_properties: dict = None):
     if websocket is None:
         url = "ws://" + host + ":" + port
         websocket = WebSocketClient(url, password, id_params)
-    loop.run_until_complete(__make_request(even_type, event_properties))
+    loop.run_until_complete(__make_request(EventType[even_type].value, event_properties))
 
 
 # Returns a dictionary with all available event types and their respective event parameters.
-# Every event returns human_readable_name which may be used to present this endpoint in a UI to the user.
-def edb_available_events():
-    return {
-        "GetVersion": {"human_readable_name": "Get OBS Studio Version"},
-        "SetCurrentProgramScene": {
-            "human_readable_name": "Switch OBS Studio Scene",
-            "name": "string"
-        },
-        "GetSceneList": {
-            "human_readable_name": "Returns list of all available scenes"
-        },
-        "SetSceneItemEnabled": {
-            "human_readable_name": "Set the enabled state of a given scene Item in a given scene",
-            "scene_name": "string",
-            "item_id": "integer",
-            "enabled": "boolean"
-        },
-        "ToggleSceneItemEnabled": {
-            "human_readable_name": "Toggles the enabled state of a Set the enabled state of a given item in a scene",
-            "scene_name": "string",
-            "item_id": "integer",
-            "enabled": "boolean"
-        }
-    }
+def edb_available_events() -> List[Event]:
+    return event.events
 
 
 def __load_obs_ws_config():
@@ -117,26 +98,26 @@ async def __stop_websocket():
     await websocket.disconnect()
 
 
-async def __make_request(even_type: str, event_properties: dict = None):
+async def __make_request(even_type: EventType, event_properties: dict = None):
     if not websocket.is_identified():
         await websocket.connect()
         await websocket.wait_until_identified()
     result = None
 
     match even_type:
-        case "GetVersion":
+        case EventType.GET_VERSION.value:
             result = await endpoints.__get_version(websocket)
-        case "SetCurrentProgramScene":
+        case EventType.SET_CURRENT_PROGRAM_SCENE.value:
             result = await endpoints.__set_current_program_scene(websocket, event_properties["name"])
-        case "GetSceneList":
+        case EventType.GET_SCENE_LIST.value:
             result = await endpoints.__get_scene_list(websocket)
-        case "SetSceneItemEnabled":
+        case EventType.SET_SCENE_ITEM_ENABLED.value:
             result = await endpoints.__set_scene_item_enabled(websocket,
                                                               event_properties["scene_name"],
                                                               event_properties["item_id"],
                                                               event_properties["enabled"])
-        case "ToggleSceneItemEnabled":
+        case EventType.TOGGLE_SCENE_ITEM_ENABLED.value:
             result = await endpoints.__toggle_scene_item_enabled(websocket, event_properties["scene_name"],
                                                                  event_properties["item_id"])
         case other:
-            pass
+            print("Unknown OBS WS Event: " + even_type)
