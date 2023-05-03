@@ -17,7 +17,7 @@ from xdg import (
 from edb_obs_ws import endpoints
 from edb_obs_ws.event import Event, EventType
 
-VERSION = "2023.5.2"
+VERSION = "2023.5.3"
 
 config_path: str = str(xdg_config_home()) + "/eldecko/backend/"
 config_file: str = config_path + "obsws.json"
