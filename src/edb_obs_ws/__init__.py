@@ -95,29 +95,29 @@ def __create_empty_config():
 
 
 async def __stop_websocket():
-    await websocket.disconnect()
+    if websocket is not None:
+        await websocket.disconnect()
 
 
-async def __make_request(even_type: EventType, event_properties: dict = None):
+async def __make_request(event_type: EventType, event_properties: dict = None):
     if not websocket.is_identified():
         await websocket.connect()
         await websocket.wait_until_identified()
-    result = None
 
-    match even_type:
+    match event_type:
         case EventType.GET_VERSION.value:
-            result = await endpoints.__get_version(websocket)
+            await endpoints.__get_version(websocket)
         case EventType.SET_CURRENT_PROGRAM_SCENE.value:
-            result = await endpoints.__set_current_program_scene(websocket, event_properties["name"])
+            await endpoints.__set_current_program_scene(websocket, event_properties["name"])
         case EventType.GET_SCENE_LIST.value:
-            result = await endpoints.__get_scene_list(websocket)
+            await endpoints.__get_scene_list(websocket)
         case EventType.SET_SCENE_ITEM_ENABLED.value:
-            result = await endpoints.__set_scene_item_enabled(websocket,
-                                                              event_properties["scene_name"],
-                                                              event_properties["item_id"],
-                                                              event_properties["enabled"])
+            await endpoints.__set_scene_item_enabled(websocket,
+                                                     event_properties["scene_name"],
+                                                     event_properties["item_id"],
+                                                     event_properties["enabled"])
         case EventType.TOGGLE_SCENE_ITEM_ENABLED.value:
-            result = await endpoints.__toggle_scene_item_enabled(websocket, event_properties["scene_name"],
-                                                                 event_properties["item_id"])
+            await endpoints.__toggle_scene_item_enabled(websocket, event_properties["scene_name"],
+                                                        event_properties["item_id"])
         case other:
-            print("Unknown OBS WS Event: " + even_type)
+            print("Unknown OBS WS Event: " + str(event_type))
