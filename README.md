@@ -2,6 +2,8 @@
 
 OBS Studio websocket based backend for El Decko.
 
+[![build result](https://build.opensuse.org/projects/home:VortexAcherontic:ElDecko/packages/el_decko_backend_obs_ws/badge.svg?type=default)](https://build.opensuse.org/package/show/home:VortexAcherontic:ElDecko/el_decko_backend_obs_ws)
+
 ## First run
 
 Upon running El Decko the first time with this backend installed it will create an empty default config to connect to
