@@ -1,3 +1,6 @@
+| :exclamation:  Discontinued there is now: [StreamController](https://flathub.org/de/apps/com.core447.StreamController)   |
+|-----------------------------------------|
+
 # El Decko Backend OBS Studio Websocket
 
 OBS Studio websocket based backend for El Decko.
